@@ -128,7 +128,7 @@ jobs:
 
 # phpspec job config
   phpspec:
-    name: PHPSpec PHP-${{ matrix.php }} ${{ matrix.dependency-version }}
+    name: PHPSpec (PHP-${{ matrix.php }} ${{ matrix.dependency-version }})
     runs-on: ubuntu-latest
     container:
       image: php:${{ matrix.php }}-alpine
@@ -193,7 +193,7 @@ jobs:
         run: echo '::set-env name=COVERAGE::1'
       - name: Run PHPSpec
         run: |
-          mkdir -p build/logs/behat
+          mkdir -p build/logs/phpspec
           if [ "$COVERAGE" = '1' ]; then
             composer phpspec
           else
@@ -203,8 +203,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v1
         with:
-          name: behat-logs-php${{ matrix.php }}
-          path: build/logs/behat
+          name: phpspec-logs-php${{ matrix.php }}
+          path: build/logs/phpspec
         continue-on-error: true
       #- name: Upload coverage results to Codecov
       #  if: matrix.coverage
@@ -217,7 +217,7 @@ jobs:
 
 # behat job config
   behat:
-    name: Behat PHP-${{ matrix.php }} ${{ matrix.dependency-version }}
+    name: Behat (PHP-${{ matrix.php }} ${{ matrix.dependency-version }})
     runs-on: ubuntu-latest
     container:
       image: php:${{ matrix.php }}-alpine
