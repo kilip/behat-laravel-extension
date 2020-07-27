@@ -108,8 +108,8 @@ jobs:
         continue-on-error: true
       - name: Update project dependencies
         run: |
-          mkdir -p /tmp/kilip/laravel-package/vendor
-          ln -s /tmp/kilip/laravel-package/vendor vendor
+          mkdir -p /tmp/kilip/behat-laravel-extension/vendor
+          ln -s /tmp/kilip/behat-laravel-extension/vendor vendor
           composer update --no-progress --no-suggest --ansi
       - name: Cache PHPStan results
         uses: actions/cache@v1
@@ -180,8 +180,8 @@ jobs:
         continue-on-error: true
       - name: Update project dependencies
         run: |
-          mkdir -p /tmp/kilip/laravel-package/vendor
-          ln -s /tmp/kilip/laravel-package/vendor vendor
+          mkdir -p /tmp/kilip/behat-laravel-extension/vendor
+          ln -s /tmp/kilip/behat-laravel-extension/vendor vendor
           composer update --no-progress --no-suggest --ansi --prefer-dist --no-interaction --${{ matrix.dependency-version }}
       - name: Enable code coverage
         if: matrix.coverage

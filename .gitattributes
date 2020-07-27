@@ -1,9 +1,14 @@
 /.github export-ignore
+/features export-ignore
 /build export-ignore
+/fixtures export-ignore
+/spec export-ignore
 /tests export-ignore
 /vendor export-ignore
 /.gitattributes export-ignore
 /.gitignore export-ignore
 /.php_cs export-ignore
+/behat.yml.dist export-ignore
+/phppspec.yml.dist export-ignore
 /phpstan.neon.dist export-ignore
 /phpunit.xml.dist export-ignore

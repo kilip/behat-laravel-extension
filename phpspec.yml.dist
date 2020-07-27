@@ -1,0 +1,4 @@
+suites:
+    laravel_extension:
+        namespace: Behat\LaravelExtension
+        psr4_prefix: Behat\LaravelExtension
