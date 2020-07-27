@@ -15,6 +15,7 @@ env:
   COVERAGE: '0'
 
 jobs:
+# php-cs-fixer job config
   php-cs-fixer:
     name: PHP-CS-Fixer (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
@@ -70,6 +71,8 @@ jobs:
           mkdir -p /var/cache/php-cs-fixer
           ./vendor/bin/php-cs-fixer fix --dry-run --diff --ansi
 
+
+# phpstan job config
   phpstan:
     name: PHPStan (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
@@ -122,8 +125,99 @@ jobs:
         continue-on-error: true
       - name: Run PHPStan analysis
         run: vendor/bin/phpstan analyse --ansi
+
+# phpspec job config
+  phpspec:
+    name: PHPSpec PHP-${{ matrix.php }} ${{ matrix.dependency-version }}
+    runs-on: ubuntu-latest
+    container:
+      image: php:${{ matrix.php }}-alpine
+      options: >-
+        --tmpfs /tmp:exec
+        --tmpfs /var/tmp:exec
+    strategy:
+      matrix:
+        php:
+          - '7.2'
+          - '7.3'
+          - '7.4'
+        dependency-version: [prefer-lowest, prefer-stable]
+        include:
+          - php: '7.4'
+            dependency-version: prefer-stable
+            coverage: true
+      fail-fast: false
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Install system packages
+        run: |
+          apk add \
+            bash \
+            unzip \
+      - name: Install pcov PHP extension
+        if: matrix.coverage
+        env:
+          BUILD_DIR: /var/tmp/build/ext-pcov-${{ env.EXT_PCOV_VERSION }}
+          SRC_DIR: /usr/src/php/ext/pcov
+        run: |
+          apk add \
+            $PHPIZE_DEPS
+          mkdir -p "$SRC_DIR" "$BUILD_DIR"
+          cd "$SRC_DIR"
+          curl -fsSL "https://pecl.php.net/get/pcov-$EXT_PCOV_VERSION.tgz" | tar -zx --strip-components 1
+          phpize
+          cd "$BUILD_DIR"
+          "$SRC_DIR"/configure --config-cache
+          make -j"$(nproc)"
+          make -j"$(nproc)" install
+          docker-php-ext-enable pcov
+      - name: Disable PHP memory limit
+        run: echo 'memory_limit=-1' >> /usr/local/etc/php/php.ini
+      - name: Install Composer
+        run: wget -qO - https://raw.githubusercontent.com/composer/getcomposer.org/$COMPOSER_INSTALLER_COMMIT/web/installer | php -- --install-dir=/usr/local/bin --filename=composer --quiet
+      - name: Cache Composer packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.composer/cache
+          key: composer-php${{ matrix.php }}-${{ matrix.dependency-version }}-${{ github.sha }}
+        continue-on-error: true
+      - name: Update project dependencies
+        run: |
+          mkdir -p /tmp/kilip/behat-laravel-extension/vendor
+          ln -s /tmp/kilip/behat-laravel-extension/vendor vendor
+          composer update --no-progress --no-suggest --ansi --prefer-dist --no-interaction --${{ matrix.dependency-version }}
+      - name: Enable code coverage
+        if: matrix.coverage
+        run: echo '::set-env name=COVERAGE::1'
+      - name: Run PHPSpec
+        run: |
+          mkdir -p build/logs/behat
+          if [ "$COVERAGE" = '1' ]; then
+            composer phpspec
+          else
+            composer phpspec
+          fi
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: behat-logs-php${{ matrix.php }}
+          path: build/logs/behat
+        continue-on-error: true
+      #- name: Upload coverage results to Codecov
+      #  if: matrix.coverage
+      #  uses: codecov/codecov-action@v1
+      #  with:
+      #    name: behat-php${{ matrix.php }}
+      #    flags: behat
+      #    fail_ci_if_error: true
+      #  continue-on-error: true
+
+# behat job config
   behat:
-    name: PHP-${{ matrix.php }} ${{ matrix.dependency-version }}
+    name: Behat PHP-${{ matrix.php }} ${{ matrix.dependency-version }}
     runs-on: ubuntu-latest
     container:
       image: php:${{ matrix.php }}-alpine

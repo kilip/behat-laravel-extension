@@ -57,8 +57,7 @@
         "php": ">=7.2",
         "friends-of-behat/mink-browserkit-driver": "^1.4",
         "friends-of-behat/mink-extension": "^2.4",
-        "illuminate/support": "^5.8|^6.0|^7.20",
-        "orchestra/testbench-browser-kit": "^5.1"
+        "illuminate/support": "^5.8|^6.0|^7.20"
     },
     "require-dev": {
         "fideloper/proxy": "^4.4",
