@@ -85,6 +85,23 @@ class FeatureContext implements Context
     }
 
     /**
+     * @AfterScenario
+     */
+    public function storeLog()
+    {
+        $logFile = $this->workingDir.'/storage/logs/laravel.log';
+        if (!is_file($logFile)) {
+            return;
+        }
+
+        $target = __DIR__.'/../../build/laravel-logs';
+        if (!is_dir($target)) {
+            mkdir($target, 0777, true);
+        }
+        copy($logFile, $target.'/'.basename($this->workingDir).'.log');
+    }
+
+    /**
      * @Given I am in laravel project directory
      */
     public function iAmInLaravelProjectDir()
@@ -105,7 +122,6 @@ class FeatureContext implements Context
         $contents = '
 $loader = include "'.$autoloadFile.'";
 $loader->addPsr4("App\\\\",[__DIR__."/../app"]);
-putenv(\'APP_KEY=base64:T32sZ8ICNANjV8CDAdXgtOmEu5iP5haOjpwHWL8dCRA=\');
 ';
         file_put_contents($this->workingDir.'/bootstrap/autoload.php', "<?php\n".$contents, LOCK_EX);
     }

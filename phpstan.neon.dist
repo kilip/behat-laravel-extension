@@ -8,7 +8,5 @@ parameters:
 			- fail
 	ignoreErrors:
 	    - '#Extension::registerDriverFactory#'
-	    - '#NodeParentInterface::arrayNode#'
 	    - '#Symfony\\Component\\HttpKernel\\Client not found#'
-	    - '#Behat\\LaravelExtension\\Mocker#'
-	    - '#ApplicationConfigurator::#'
+	    - '#NodeParentInterface::enumNode#'

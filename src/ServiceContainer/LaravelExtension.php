@@ -13,9 +13,12 @@ declare(strict_types=1);
 
 namespace Behat\LaravelExtension\ServiceContainer;
 
-use Behat\LaravelExtension\ApplicationConfigurator;
-use Behat\LaravelExtension\PackageConfigurator;
+use Behat\Behat\Context\ServiceContainer\ContextExtension;
+use Behat\LaravelExtension\Contracts\LaravelFactoryContract;
+use Behat\LaravelExtension\Factory\LaravelAppTypeFactory;
+use Behat\LaravelExtension\Factory\LaravelPackageTypeFactory;
 use Behat\LaravelExtension\ServiceContainer\Driver\LaravelFactory;
+use Behat\Testwork\EventDispatcher\ServiceContainer\EventDispatcherExtension;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use Illuminate\Foundation\Application;
@@ -30,7 +33,7 @@ class LaravelExtension implements ExtensionInterface
 
     public function process(ContainerBuilder $container)
     {
-        // TODO: Implement process() method.
+        return;
     }
 
     public function getConfigKey()
@@ -50,6 +53,9 @@ class LaravelExtension implements ExtensionInterface
         $builder
             ->addDefaultsIfNotSet()
             ->children()
+                ->scalarNode('bootstrap_file')
+                    ->defaultValue('bootstrap/app.php')
+                ->end()
                 ->enumNode('type')
                     ->values(['application', 'package'])
                     ->defaultValue('application')
@@ -73,40 +79,55 @@ class LaravelExtension implements ExtensionInterface
 
     public function load(ContainerBuilder $container, array $config)
     {
+        $container->setParameter('laravel.config.bootstrap_file', $config['bootstrap_file']);
         $container->setParameter('laravel.config.providers', $config['providers']);
         $container->setParameter('laravel.config.aliases', $config['aliases']);
         $container->setParameter('laravel.config.environment', $config['environment']);
 
-        $this->setupConfigurator($container, $config);
-
-        $this->setupApplicationFactory($container, $config);
+        $this->loadFactories($container, $config);
+        $this->loadApplicationFactory($container, $config);
+        $this->loadContextInitializer($container, $config);
     }
 
-    private function setupApplicationFactory(ContainerBuilder $container, array $config)
+    private function loadApplicationFactory(ContainerBuilder $container, array $config)
     {
-        $configuratorId = 'laravel.configurator.application';
+        $configuratorId = 'laravel.factory.application';
         if ('package' === $config['type']) {
-            $configuratorId = 'laravel.configurator.package';
+            $configuratorId = 'laravel.factory.package';
         }
-        $container->setAlias('laravel.configurator', $configuratorId);
+        $container->setAlias('laravel.factory', $configuratorId);
+        $container->setAlias(LaravelFactoryContract::class, $configuratorId);
 
         $definition = new Definition(Application::class);
-        $definition->setFactory(new Reference('laravel.configurator'));
+        $definition->setFactory([new Reference('laravel.factory'), 'getApplication']);
         $container->setDefinition('laravel.app', $definition);
     }
 
-    private function setupConfigurator(ContainerBuilder $container, array $config)
+    private function loadFactories(ContainerBuilder $container, array $config)
     {
-        $package = new Definition(PackageConfigurator::class, [
+        $package = new Definition(LaravelPackageTypeFactory::class, [
             '%laravel.config.providers%',
             '%laravel.config.aliases%',
             '%laravel.config.environment%',
         ]);
         $package->addMethodCall('boot');
-        $container->setDefinition('laravel.configurator.package', $package);
+        $container->setDefinition('laravel.factory.package', $package);
 
-        $app = new Definition(ApplicationConfigurator::class);
+        $app = new Definition(LaravelAppTypeFactory::class, [
+            '%laravel.config.bootstrap_file%',
+        ]);
         $package->addMethodCall('boot');
-        $container->setDefinition('laravel.configurator.application', $app);
+        $container->setDefinition('laravel.factory.application', $app);
+    }
+
+    private function loadContextInitializer(ContainerBuilder $container, array $config)
+    {
+        $definition = new Definition('Behat\LaravelExtension\Context\Initializer\ApplicationAwareInitializer', [
+            new Reference('laravel.factory'),
+        ]);
+
+        $definition->addTag(ContextExtension::INITIALIZER_TAG, ['priority' => 0]);
+        $definition->addTag(EventDispatcherExtension::SUBSCRIBER_TAG, ['priority' => 0]);
+        $container->setDefinition('laravel.context.app_initializer', $definition);
     }
 }

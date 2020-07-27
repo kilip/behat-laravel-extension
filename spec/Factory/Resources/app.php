@@ -11,16 +11,4 @@
 
 declare(strict_types=1);
 
-namespace Behat\LaravelExtension;
-
-use Illuminate\Contracts\Foundation\Application;
-
-interface ApplicationFactoryInterface
-{
-    public function boot();
-
-    /**
-     * @return Application|\Illuminate\Foundation\Application
-     */
-    public function __invoke();
-}
+return new \Illuminate\Foundation\Application(__DIR__);
