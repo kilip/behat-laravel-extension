@@ -9,8 +9,8 @@
  */
 
 use Behat\Behat\Context\Context;
-use Behat\Behat\Output\Node\EventListener\JUnit\JUnitDurationListener;
 use Behat\Gherkin\Node\PyStringNode;
+use Illuminate\Foundation\Application;
 use PHPUnit\Framework\Assert;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
@@ -79,6 +79,54 @@ class FeatureContext implements Context
         }
         $this->workingDir = $dir;
         $this->phpBin = $php;
+    }
+
+    /**
+     * @Given I am in laravel project directory
+     */
+    public function iAmInLaravelProjectDir()
+    {
+        $this->prepareLaravelStub();
+        $fs = new \Symfony\Component\Filesystem\Filesystem();
+        $target = $this->workingDir;
+        if (!is_file($target . '/stub-version')) {
+            $fs->mirror(__DIR__ . '/../../fixtures/laravel', $this->workingDir);
+        }
+
+        /* @var \Composer\Autoload\ClassLoader $loader*/
+        $autoloadFile = __DIR__.'/../../vendor/autoload.php';
+        if(!is_file($autoloadFile)){
+            $autoloadFile = __DIR__.'/../../../../autoload.php';
+        }
+        $autoloadFile = realpath($autoloadFile);
+        $contents = '
+$loader = include "'.$autoloadFile.'";
+$loader->addPsr4("App\\\\",[__DIR__."/../app"]);
+putenv(\'APP_KEY=base64:T32sZ8ICNANjV8CDAdXgtOmEu5iP5haOjpwHWL8dCRA=\');
+';
+        file_put_contents($this->workingDir.'/bootstrap/autoload.php',"<?php\n".$contents, LOCK_EX);
+    }
+
+    public function prepareLaravelStub()
+    {
+        $version = (int)substr(Application::VERSION,0,1);
+        $sourceDir = __DIR__.'/../../fixtures/stub/laravel-'.$version;
+        $targetPath = $this->workingDir;
+        try{
+            $stubVersion = file_get_contents($targetPath.'/stub-version');
+        }catch (\Exception $e){
+            $stubVersion = "";
+        }
+
+        $stubVersion = (int)trim($stubVersion);
+
+        if($version === $stubVersion){
+            return;
+        }
+
+        $fs = new Symfony\Component\Filesystem\Filesystem();
+
+        $fs->mirror($sourceDir,$targetPath);
     }
 
     /**

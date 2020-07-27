@@ -2,6 +2,7 @@
 
 namespace Behat\LaravelExtension;
 
+use Composer\Autoload\ClassLoader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -70,6 +71,7 @@ class ApplicationConfigurator implements ApplicationFactoryInterface
      */
     public function createApplication()
     {
+
         $app = include getcwd().'/bootstrap/app.php';
 
         return $app;
@@ -97,6 +99,9 @@ class ApplicationConfigurator implements ApplicationFactoryInterface
 
     public function __invoke()
     {
+        if(is_null($this->app)){
+            $this->app = $this->createApplication();
+        }
         return $this->app;
     }
 

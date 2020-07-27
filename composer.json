@@ -61,8 +61,10 @@
         "orchestra/testbench-browser-kit": "^5.1"
     },
     "require-dev": {
+        "fideloper/proxy": "^4.4",
         "friendsofphp/php-cs-fixer": "^2.16",
         "laravel/framework": "^5.8|^6.0|^7.0",
+        "laravel/tinker": "^2.4",
         "orchestra/testbench-core": "^5.1",
         "phpspec/phpspec": "^6.2",
         "phpstan/extension-installer": "^1.0",
