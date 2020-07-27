@@ -13,10 +13,12 @@ declare(strict_types=1);
 
 namespace Behat\LaravelExtension\ServiceContainer;
 
+use Behat\Behat\Context\ServiceContainer\ContextExtension;
 use Behat\LaravelExtension\Contracts\LaravelFactoryContract;
 use Behat\LaravelExtension\Factory\LaravelAppTypeFactory;
 use Behat\LaravelExtension\Factory\LaravelPackageTypeFactory;
 use Behat\LaravelExtension\ServiceContainer\Driver\LaravelFactory;
+use Behat\Testwork\EventDispatcher\ServiceContainer\EventDispatcherExtension;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use Illuminate\Foundation\Application;
@@ -82,11 +84,12 @@ class LaravelExtension implements ExtensionInterface
         $container->setParameter('laravel.config.aliases', $config['aliases']);
         $container->setParameter('laravel.config.environment', $config['environment']);
 
-        $this->setupConfigurator($container, $config);
-        $this->setupApplicationFactory($container, $config);
+        $this->loadFactories($container, $config);
+        $this->loadApplicationFactory($container, $config);
+        $this->loadContextInitializer($container, $config);
     }
 
-    private function setupApplicationFactory(ContainerBuilder $container, array $config)
+    private function loadApplicationFactory(ContainerBuilder $container, array $config)
     {
         $configuratorId = 'laravel.factory.application';
         if ('package' === $config['type']) {
@@ -96,11 +99,11 @@ class LaravelExtension implements ExtensionInterface
         $container->setAlias(LaravelFactoryContract::class, $configuratorId);
 
         $definition = new Definition(Application::class);
-        $definition->setFactory([new Reference('laravel.factory'), '__invoke']);
+        $definition->setFactory([new Reference('laravel.factory'), 'getApplication']);
         $container->setDefinition('laravel.app', $definition);
     }
 
-    private function setupConfigurator(ContainerBuilder $container, array $config)
+    private function loadFactories(ContainerBuilder $container, array $config)
     {
         $package = new Definition(LaravelPackageTypeFactory::class, [
             '%laravel.config.providers%',
@@ -115,5 +118,16 @@ class LaravelExtension implements ExtensionInterface
         ]);
         $package->addMethodCall('boot');
         $container->setDefinition('laravel.factory.application', $app);
+    }
+
+    private function loadContextInitializer(ContainerBuilder $container, array $config)
+    {
+        $definition = new Definition('Behat\LaravelExtension\Context\Initializer\ApplicationAwareInitializer', [
+            new Reference('laravel.factory'),
+        ]);
+
+        $definition->addTag(ContextExtension::INITIALIZER_TAG, ['priority' => 0]);
+        $definition->addTag(EventDispatcherExtension::SUBSCRIBER_TAG, ['priority' => 0]);
+        $container->setDefinition('laravel.context.app_initializer', $definition);
     }
 }

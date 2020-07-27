@@ -42,4 +42,9 @@ class LaravelAppTypeFactory implements LaravelFactoryContract
 
         return $app;
     }
+
+    public function __invoke()
+    {
+        // TODO: write logic here
+    }
 }

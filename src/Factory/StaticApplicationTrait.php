@@ -24,6 +24,12 @@ trait StaticApplicationTrait
      */
     abstract public function createApplication();
 
+    public function reboot()
+    {
+        $this->tearDown();
+        $this->boot();
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -51,7 +57,7 @@ trait StaticApplicationTrait
     /**
      * {@inheritdoc}
      */
-    public function __invoke()
+    public function getApplication()
     {
         if (!\is_object(static::$theApplication)) {
             $this->boot();

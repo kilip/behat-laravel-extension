@@ -62,4 +62,9 @@ class LaravelPackageTypeFactory implements LaravelFactoryContract
             $app['config']->set($key, $value);
         }
     }
+
+    public function __invoke()
+    {
+        // TODO: write logic here
+    }
 }

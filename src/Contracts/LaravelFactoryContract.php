@@ -32,7 +32,12 @@ interface LaravelFactoryContract
     public function tearDown();
 
     /**
+     * @return void
+     */
+    public function reboot();
+
+    /**
      * @return Application
      */
-    public function __invoke();
+    public function getApplication();
 }

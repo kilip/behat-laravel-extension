@@ -64,7 +64,7 @@
         "friendsofphp/php-cs-fixer": "^2.16",
         "laravel/framework": "^5.8|^6.0|^7.0",
         "laravel/tinker": "^1.0.10|^2.4",
-        "orchestra/testbench-core": "^3.9.4|^4.8|^5.3",
+        "orchestra/testbench": "^3.9.4|^4.8|^5.3",
         "phpspec/phpspec": "^6.2",
         "phpstan/extension-installer": "^1.0",
         "phpstan/phpstan": "^0.12.30",

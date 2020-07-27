@@ -28,8 +28,7 @@ Feature: Developer enables laravel extension
           Behat\LaravelExtension:
             type: package
             providers:
-              - Some\ServiceProvider1
-              - Some\ServiceProvider2
+              - Tests\DummyPackage\DummyServiceProvider
             aliases:
               SomeAliases: Some\Aliases
       """

@@ -55,7 +55,7 @@ class LaravelPackageTypeFactorySpec extends ObjectBehavior
     public function it_should_create_application()
     {
         $this->boot();
-        $app = $this();
+        $app = $this->getApplication();
         $app->getProvider(DummyServiceProvider::class)->shouldHaveType(DummyServiceProvider::class);
         $app->get('config')->shouldHaveType(Repository::class);
         $app->get('config')->get('key')->shouldReturn('value');

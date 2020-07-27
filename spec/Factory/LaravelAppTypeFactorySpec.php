@@ -38,7 +38,6 @@ class LaravelAppTypeFactorySpec extends ObjectBehavior
     public function it_should_creates_application()
     {
         $this->boot();
-        $app = $this();
-        $app->shouldHaveType(Application::class);
+        $this->getApplication()->shouldHaveType(Application::class);
     }
 }
