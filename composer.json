@@ -35,7 +35,6 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\DummyPackage\\": "./fixtures/test-package",
-            "Tests\\DummyApp\\": "./fixtures/test-app",
             "App\\": "./fixtures/laravel"
         }
     },
