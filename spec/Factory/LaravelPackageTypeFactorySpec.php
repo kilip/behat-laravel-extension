@@ -56,8 +56,7 @@ class LaravelPackageTypeFactorySpec extends ObjectBehavior
     {
         $this->boot();
         $app = $this();
-        $app->providerIsLoaded(DummyServiceProvider::class)
-            ->shouldReturn(true);
+        $app->getProvider(DummyServiceProvider::class)->shouldHaveType(DummyServiceProvider::class);
         $app->get('config')->shouldHaveType(Repository::class);
         $app->get('config')->get('key')->shouldReturn('value');
         $app->make('Dummy')->shouldHaveType(DummyService::class);

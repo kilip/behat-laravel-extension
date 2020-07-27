@@ -31,7 +31,7 @@ class LaravelExtension implements ExtensionInterface
 
     public function process(ContainerBuilder $container)
     {
-        // TODO: Implement process() method.
+        return;
     }
 
     public function getConfigKey()
@@ -83,7 +83,6 @@ class LaravelExtension implements ExtensionInterface
         $container->setParameter('laravel.config.environment', $config['environment']);
 
         $this->setupConfigurator($container, $config);
-
         $this->setupApplicationFactory($container, $config);
     }
 
@@ -97,7 +96,7 @@ class LaravelExtension implements ExtensionInterface
         $container->setAlias(LaravelFactoryContract::class, $configuratorId);
 
         $definition = new Definition(Application::class);
-        $definition->setFactory(new Reference('laravel.factory'));
+        $definition->setFactory([new Reference('laravel.factory'), '__invoke']);
         $container->setDefinition('laravel.app', $definition);
     }
 

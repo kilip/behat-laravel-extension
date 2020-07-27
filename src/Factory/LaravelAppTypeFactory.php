@@ -38,7 +38,7 @@ class LaravelAppTypeFactory implements LaravelFactoryContract
      */
     public function createApplication()
     {
-        $app = include getcwd().'/'.$this->bootstrapFile;
+        $app = include $this->bootstrapFile;
 
         return $app;
     }
