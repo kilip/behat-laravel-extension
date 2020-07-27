@@ -1,9 +1,19 @@
 <?php
 
+/*
+ * This file is part of the Behat\LaravelExtension project.
+ *
+ * (c) Anthonius Munthi <https://itstoni.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
 namespace Behat\LaravelExtension;
 
 use Illuminate\Contracts\Foundation\Application;
-
 use Laravel\BrowserKitTesting\Concerns\ImpersonatesUsers;
 use Laravel\BrowserKitTesting\Concerns\InteractsWithAuthentication;
 use Laravel\BrowserKitTesting\Concerns\InteractsWithConsole;
@@ -17,16 +27,16 @@ use Orchestra\Testbench\Concerns\Testing;
 
 class PackageConfigurator implements ApplicationFactoryInterface
 {
-    use ImpersonatesUsers,
-        InteractsWithAuthentication,
-        InteractsWithConsole,
-        InteractsWithContainer,
-        InteractsWithDatabase,
-        InteractsWithExceptionHandling,
-        InteractsWithSession,
-        MakesHttpRequests,
-        MocksApplicationServices,
-        Testing;
+    use ImpersonatesUsers;
+    use InteractsWithAuthentication;
+    use InteractsWithConsole;
+    use InteractsWithContainer;
+    use InteractsWithDatabase;
+    use InteractsWithExceptionHandling;
+    use InteractsWithSession;
+    use MakesHttpRequests;
+    use MocksApplicationServices;
+    use Testing;
 
     /**
      * @var array
@@ -46,8 +56,7 @@ class PackageConfigurator implements ApplicationFactoryInterface
         array $providers = [],
         array $aliases = [],
         array $configs = []
-    )
-    {
+    ) {
         $this->providers = $providers;
         $this->aliases = $aliases;
         $this->configs = $configs;
@@ -70,7 +79,7 @@ class PackageConfigurator implements ApplicationFactoryInterface
 
     protected function getEnvironmentSetUp($app)
     {
-        foreach($this->configs as $key => $value){
+        foreach ($this->configs as $key => $value) {
             $app['config']->set($key, $value);
         }
     }
@@ -92,7 +101,7 @@ class PackageConfigurator implements ApplicationFactoryInterface
      */
     protected function setUpTraits()
     {
-        $uses = \array_flip(\class_uses_recursive(static::class));
+        $uses = array_flip(class_uses_recursive(static::class));
 
         return $this->setUpTheTestEnvironmentTraits($uses);
     }

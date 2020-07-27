@@ -122,7 +122,7 @@ jobs:
         continue-on-error: true
       - name: Run PHPStan analysis
         run: vendor/bin/phpstan analyse --ansi
-  phpunit:
+  behat:
     name: PHP-${{ matrix.php }} ${{ matrix.dependency-version }}
     runs-on: ubuntu-latest
     container:
@@ -186,26 +186,26 @@ jobs:
       - name: Enable code coverage
         if: matrix.coverage
         run: echo '::set-env name=COVERAGE::1'
-      - name: Run PHPUnit tests
+      - name: Run Behat tests
         run: |
-          mkdir -p build/logs/phpunit
+          mkdir -p build/logs/behat
           if [ "$COVERAGE" = '1' ]; then
-            vendor/bin/phpunit --coverage-clover build/logs/phpunit/clover.xml --log-junit build/logs/phpunit/junit.xml --colors=always
+            composer behat
           else
-            vendor/bin/phpunit --log-junit build/logs/phpunit/junit.xml --colors=always
+            composer behat
           fi
       - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v1
         with:
-          name: phpunit-logs-php${{ matrix.php }}
-          path: build/logs/phpunit
+          name: behat-logs-php${{ matrix.php }}
+          path: build/logs/behat
         continue-on-error: true
-      - name: Upload coverage results to Codecov
-        if: matrix.coverage
-        uses: codecov/codecov-action@v1
-        with:
-          name: phpunit-php${{ matrix.php }}
-          flags: phpunit
-          fail_ci_if_error: true
-        continue-on-error: true
+      #- name: Upload coverage results to Codecov
+      #  if: matrix.coverage
+      #  uses: codecov/codecov-action@v1
+      #  with:
+      #    name: behat-php${{ matrix.php }}
+      #    flags: behat
+      #    fail_ci_if_error: true
+      #  continue-on-error: true

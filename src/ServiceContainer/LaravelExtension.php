@@ -1,5 +1,16 @@
 <?php
 
+/*
+ * This file is part of the Behat\LaravelExtension project.
+ *
+ * (c) Anthonius Munthi <https://itstoni.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
 namespace Behat\LaravelExtension\ServiceContainer;
 
 use Behat\LaravelExtension\ApplicationConfigurator;
@@ -15,7 +26,7 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class LaravelExtension implements ExtensionInterface
 {
-    const KERNEL_SERVICE_ID = 'laravel.app';
+    public const KERNEL_SERVICE_ID = 'laravel.app';
 
     public function process(ContainerBuilder $container)
     {
@@ -29,7 +40,7 @@ class LaravelExtension implements ExtensionInterface
 
     public function initialize(ExtensionManager $extensionManager)
     {
-        if(null !== $minkExtension = $extensionManager->getExtension('mink')){
+        if (null !== $minkExtension = $extensionManager->getExtension('mink')) {
             $minkExtension->registerDriverFactory(new LaravelFactory());
         }
     }
@@ -40,7 +51,7 @@ class LaravelExtension implements ExtensionInterface
             ->addDefaultsIfNotSet()
             ->children()
                 ->enumNode('type')
-                    ->values(['application','package'])
+                    ->values(['application', 'package'])
                     ->defaultValue('application')
                 ->end()
                 ->arrayNode('providers')
@@ -57,8 +68,7 @@ class LaravelExtension implements ExtensionInterface
                     ->useAttributeAsKey('name')
                     ->prototype('scalar')->end()
                 ->end()
-            ->end()
-        ;
+            ->end();
     }
 
     public function load(ContainerBuilder $container, array $config)
@@ -70,13 +80,12 @@ class LaravelExtension implements ExtensionInterface
         $this->setupConfigurator($container, $config);
 
         $this->setupApplicationFactory($container, $config);
-
     }
 
     private function setupApplicationFactory(ContainerBuilder $container, array $config)
     {
         $configuratorId = 'laravel.configurator.application';
-        if('package' === $config['type']){
+        if ('package' === $config['type']) {
             $configuratorId = 'laravel.configurator.package';
         }
         $container->setAlias('laravel.configurator', $configuratorId);
@@ -88,17 +97,16 @@ class LaravelExtension implements ExtensionInterface
 
     private function setupConfigurator(ContainerBuilder $container, array $config)
     {
-        $package = new Definition(PackageConfigurator::class,[
+        $package = new Definition(PackageConfigurator::class, [
             '%laravel.config.providers%',
             '%laravel.config.aliases%',
-            '%laravel.config.environment%'
+            '%laravel.config.environment%',
         ]);
         $package->addMethodCall('boot');
-        $container->setDefinition('laravel.configurator.package',$package);
+        $container->setDefinition('laravel.configurator.package', $package);
 
         $app = new Definition(ApplicationConfigurator::class);
         $package->addMethodCall('boot');
         $container->setDefinition('laravel.configurator.application', $app);
     }
-
 }

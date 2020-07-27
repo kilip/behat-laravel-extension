@@ -1,5 +1,16 @@
 <?php
 
+/*
+ * This file is part of the Behat\LaravelExtension project.
+ *
+ * (c) Anthonius Munthi <https://itstoni.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
 namespace spec\Behat\LaravelExtension\ServiceContainer;
 
 use Behat\LaravelExtension\ServiceContainer\Driver\LaravelFactory;
@@ -12,25 +23,24 @@ use Prophecy\Argument;
 
 class LaravelExtensionSpec extends ObjectBehavior
 {
-    function it_is_initializable()
+    public function it_is_initializable()
     {
         $this->shouldHaveType(LaravelExtension::class);
     }
 
-    function it_should_be_a_behat_extension()
+    public function it_should_be_a_behat_extension()
     {
         $this->shouldImplement(Extension::class);
     }
 
-    function it_should_returns_config_key()
+    public function it_should_returns_config_key()
     {
         $this->getConfigKey()->shouldReturn('laravel');
     }
 
-    function it_should_register_mink_driver_for_laravel(
+    public function it_should_register_mink_driver_for_laravel(
         MinkExtension $mink
-    )
-    {
+    ) {
         $mink->getConfigKey()->shouldBeCalled()->willReturn('mink');
         $mink->registerDriverFactory(Argument::type(LaravelFactory::class))
             ->shouldBeCalled();
@@ -39,6 +49,4 @@ class LaravelExtensionSpec extends ObjectBehavior
 
         $this->initialize($manager);
     }
-
-
 }

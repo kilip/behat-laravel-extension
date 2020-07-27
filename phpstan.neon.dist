@@ -7,3 +7,8 @@ parameters:
 		PHPUnit\Framework\Constraint\Constraint:
 			- fail
 	ignoreErrors:
+	    - '#Extension::registerDriverFactory#'
+	    - '#NodeParentInterface::arrayNode#'
+	    - '#Symfony\\Component\\HttpKernel\\Client not found#'
+	    - '#Behat\\LaravelExtension\\Mocker#'
+	    - '#ApplicationConfigurator::#'

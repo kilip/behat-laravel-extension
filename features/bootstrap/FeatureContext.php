@@ -1,12 +1,15 @@
 <?php
 
 /*
- * This file is part of the Behat.
- * (c) Konstantin Kudryashov <ever.zet@gmail.com>
+ * This file is part of the Behat\LaravelExtension project.
+ *
+ * (c) Anthonius Munthi <https://itstoni.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
@@ -41,7 +44,7 @@ class FeatureContext implements Context
     /**
      * @var array
      */
-    private $env = array();
+    private $env = [];
     /**
      * @var string
      */
@@ -55,7 +58,7 @@ class FeatureContext implements Context
      */
     public static function cleanTestFolders()
     {
-        if (is_dir($dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'behat')) {
+        if (is_dir($dir = sys_get_temp_dir().DIRECTORY_SEPARATOR.'behat')) {
             self::clearDirectory($dir);
         }
     }
@@ -67,11 +70,11 @@ class FeatureContext implements Context
      */
     public function prepareTestFolders()
     {
-        $dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'behat' . DIRECTORY_SEPARATOR .
-            md5(microtime() . rand(0, 10000));
+        $dir = sys_get_temp_dir().DIRECTORY_SEPARATOR.'behat'.DIRECTORY_SEPARATOR.
+            md5(microtime().random_int(0, 10000));
 
-        mkdir($dir . '/features/bootstrap/i18n', 0777, true);
-        mkdir($dir . '/junit');
+        mkdir($dir.'/features/bootstrap/i18n', 0777, true);
+        mkdir($dir.'/junit');
 
         $phpFinder = new PhpExecutableFinder();
         if (false === $php = $phpFinder->find()) {
@@ -89,13 +92,13 @@ class FeatureContext implements Context
         $this->prepareLaravelStub();
         $fs = new \Symfony\Component\Filesystem\Filesystem();
         $target = $this->workingDir;
-        if (!is_file($target . '/stub-version')) {
-            $fs->mirror(__DIR__ . '/../../fixtures/laravel', $this->workingDir);
+        if (!is_file($target.'/stub-version')) {
+            $fs->mirror(__DIR__.'/../../fixtures/laravel', $this->workingDir);
         }
 
-        /* @var \Composer\Autoload\ClassLoader $loader*/
+        /** @var \Composer\Autoload\ClassLoader $loader */
         $autoloadFile = __DIR__.'/../../vendor/autoload.php';
-        if(!is_file($autoloadFile)){
+        if (!is_file($autoloadFile)) {
             $autoloadFile = __DIR__.'/../../../../autoload.php';
         }
         $autoloadFile = realpath($autoloadFile);
@@ -104,29 +107,29 @@ $loader = include "'.$autoloadFile.'";
 $loader->addPsr4("App\\\\",[__DIR__."/../app"]);
 putenv(\'APP_KEY=base64:T32sZ8ICNANjV8CDAdXgtOmEu5iP5haOjpwHWL8dCRA=\');
 ';
-        file_put_contents($this->workingDir.'/bootstrap/autoload.php',"<?php\n".$contents, LOCK_EX);
+        file_put_contents($this->workingDir.'/bootstrap/autoload.php', "<?php\n".$contents, LOCK_EX);
     }
 
     public function prepareLaravelStub()
     {
-        $version = (int)substr(Application::VERSION,0,1);
+        $version = (int) substr(Application::VERSION, 0, 1);
         $sourceDir = __DIR__.'/../../fixtures/stub/laravel-'.$version;
         $targetPath = $this->workingDir;
-        try{
+        try {
             $stubVersion = file_get_contents($targetPath.'/stub-version');
-        }catch (\Exception $e){
-            $stubVersion = "";
+        } catch (\Exception $e) {
+            $stubVersion = '';
         }
 
-        $stubVersion = (int)trim($stubVersion);
+        $stubVersion = (int) trim($stubVersion);
 
-        if($version === $stubVersion){
+        if ($version === $stubVersion) {
             return;
         }
 
         $fs = new Symfony\Component\Filesystem\Filesystem();
 
-        $fs->mirror($sourceDir,$targetPath);
+        $fs->mirror($sourceDir, $targetPath);
     }
 
     /**
@@ -139,8 +142,8 @@ putenv(\'APP_KEY=base64:T32sZ8ICNANjV8CDAdXgtOmEu5iP5haOjpwHWL8dCRA=\');
      */
     public function aFileNamedWith($filename, PyStringNode $content)
     {
-        $content = strtr((string) $content, array("'''" => '"""'));
-        $this->createFile($this->workingDir . '/' . $filename, $content);
+        $content = strtr((string) $content, ["'''" => '"""']);
+        $this->createFile($this->workingDir.'/'.$filename, $content);
     }
 
     /**
@@ -152,7 +155,7 @@ putenv(\'APP_KEY=base64:T32sZ8ICNANjV8CDAdXgtOmEu5iP5haOjpwHWL8dCRA=\');
      */
     public function aFileNamed($filename)
     {
-        $this->createFile($this->workingDir . '/' . $filename, '');
+        $this->createFile($this->workingDir.'/'.$filename, '');
     }
 
     /**
@@ -172,7 +175,7 @@ class FeatureContext implements Context
 {
 }
 EOL;
-        $this->createFile($this->workingDir . '/' . $filename, $content);
+        $this->createFile($this->workingDir.'/'.$filename, $content);
     }
 
     /**
@@ -188,7 +191,7 @@ Feature:
         Scenario:
           When this scenario executes
 EOL;
-        $this->createFile($this->workingDir . '/' . $filename, $content);
+        $this->createFile($this->workingDir.'/'.$filename, $content);
     }
 
     /**
@@ -208,15 +211,15 @@ EOL;
      *
      * @Given /^file "([^"]*)" should exist$/
      *
-     * @param   string $path
+     * @param string $path
      */
     public function fileShouldExist($path)
     {
-        Assert::assertFileExists($this->workingDir . DIRECTORY_SEPARATOR . $path);
+        Assert::assertFileExists($this->workingDir.DIRECTORY_SEPARATOR.$path);
     }
 
     /**
-     * Sets specified ENV variable
+     * Sets specified ENV variable.
      *
      * @When /^"BEHAT_PARAMS" environment variable is set to:$/
      *
@@ -224,11 +227,11 @@ EOL;
      */
     public function iSetEnvironmentVariable(PyStringNode $value)
     {
-        $this->env = array('BEHAT_PARAMS' => (string) $value);
+        $this->env = ['BEHAT_PARAMS' => (string) $value];
     }
 
     /**
-     * Runs behat command with provided parameters
+     * Runs behat command with provided parameters.
      *
      * @When /^I run "behat(?: ((?:\"|[^"])*))?"$/
      *
@@ -236,14 +239,14 @@ EOL;
      */
     public function iRunBehat($argumentsString = '')
     {
-        $argumentsString = strtr($argumentsString, array('\'' => '"'));
+        $argumentsString = strtr($argumentsString, ['\'' => '"']);
 
         $cmd = sprintf(
             '%s %s %s %s',
             $this->phpBin,
             escapeshellarg(BEHAT_BIN_PATH),
             $argumentsString,
-            strtr($this->options, array('\'' => '"', '"' => '\"'))
+            strtr($this->options, ['\'' => '"', '"' => '\"'])
         );
 
         if (method_exists('\\Symfony\\Component\\Process\\Process', 'fromShellCommandline')) {
@@ -274,7 +277,7 @@ EOL;
     }
 
     /**
-     * Runs behat command with provided parameters in interactive mode
+     * Runs behat command with provided parameters in interactive mode.
      *
      * @When /^I answer "([^"]+)" when running "behat(?: ((?:\"|[^"])*))?"$/
      *
@@ -292,7 +295,7 @@ EOL;
     }
 
     /**
-     * Runs behat command in debug mode
+     * Runs behat command in debug mode.
      *
      * @When /^I run behat in debug mode$/
      */
@@ -339,7 +342,7 @@ EOL;
      */
     public function fileShouldContain($path, PyStringNode $text)
     {
-        $path = $this->workingDir . '/' . $path;
+        $path = $this->workingDir.'/'.$path;
         Assert::assertFileExists($path);
 
         $fileContent = trim(file_get_contents($path));
@@ -361,7 +364,7 @@ EOL;
      */
     public function fileXmlShouldBeLike($path, PyStringNode $text)
     {
-        $path = $this->workingDir . '/' . $path;
+        $path = $this->workingDir.'/'.$path;
         Assert::assertFileExists($path);
 
         $fileContent = trim(file_get_contents($path));
@@ -374,7 +377,6 @@ EOL;
 
         Assert::assertEquals(trim($dom->saveXML(null, LIBXML_NOEMPTYTAG)), $fileContent);
     }
-
 
     /**
      * Checks whether last command output contains provided string.
@@ -390,12 +392,12 @@ EOL;
 
     private function getExpectedOutput(PyStringNode $expectedText)
     {
-        $text = strtr($expectedText, array(
+        $text = strtr($expectedText, [
             '\'\'\'' => '"""',
-            '%%TMP_DIR%%' => sys_get_temp_dir() . DIRECTORY_SEPARATOR,
-            '%%WORKING_DIR%%' => realpath($this->workingDir . DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR,
+            '%%TMP_DIR%%' => sys_get_temp_dir().DIRECTORY_SEPARATOR,
+            '%%WORKING_DIR%%' => realpath($this->workingDir.DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR,
             '%%DS%%' => DIRECTORY_SEPARATOR,
-        ));
+        ]);
 
         // windows path fix
         if ('/' !== DIRECTORY_SEPARATOR) {
@@ -437,13 +439,13 @@ EOL;
     {
         if ('fail' === $success) {
             if (0 === $this->getExitCode()) {
-                echo 'Actual output:' . PHP_EOL . PHP_EOL . $this->getOutput();
+                echo 'Actual output:'.PHP_EOL.PHP_EOL.$this->getOutput();
             }
 
             Assert::assertNotEquals(0, $this->getExitCode());
         } else {
             if (0 !== $this->getExitCode()) {
-                echo 'Actual output:' . PHP_EOL . PHP_EOL . $this->getOutput();
+                echo 'Actual output:'.PHP_EOL.PHP_EOL.$this->getOutput();
             }
 
             Assert::assertEquals(0, $this->getExitCode());
@@ -461,9 +463,9 @@ EOL;
     public function xmlShouldBeValid($xmlFile, $schemaPath)
     {
         $dom = new DomDocument();
-        $dom->load($this->workingDir . '/' . $xmlFile);
+        $dom->load($this->workingDir.'/'.$xmlFile);
 
-        $dom->schemaValidate(__DIR__ . '/schema/' . $schemaPath);
+        $dom->schemaValidate(__DIR__.'/schema/'.$schemaPath);
     }
 
     private function getExitCode()
@@ -473,7 +475,7 @@ EOL;
 
     private function getOutput()
     {
-        $output = $this->process->getErrorOutput() . $this->process->getOutput();
+        $output = $this->process->getErrorOutput().$this->process->getOutput();
 
         // Normalize the line endings and directory separators in the output
         if ("\n" !== PHP_EOL) {
@@ -481,12 +483,12 @@ EOL;
         }
 
         // Remove location of the project
-        $output = str_replace(realpath(dirname(dirname(__DIR__))).DIRECTORY_SEPARATOR, '', $output);
+        $output = str_replace(realpath(dirname(__DIR__, 2)).DIRECTORY_SEPARATOR, '', $output);
 
         // Replace wrong warning message of HHVM
         $output = str_replace('Notice: Undefined index: ', 'Notice: Undefined offset: ', $output);
 
-        return trim(preg_replace("/ +$/m", '', $output));
+        return trim(preg_replace('/ +$/m', '', $output));
     }
 
     private function createFile($filename, $content)
@@ -506,7 +508,7 @@ EOL;
 
     private function moveToNewPath($path)
     {
-        $newWorkingDir = $this->workingDir .'/' . $path;
+        $newWorkingDir = $this->workingDir.'/'.$path;
         if (!file_exists($newWorkingDir)) {
             mkdir($newWorkingDir, 0777, true);
         }
@@ -521,7 +523,7 @@ EOL;
         array_shift($files);
 
         foreach ($files as $file) {
-            $file = $path . DIRECTORY_SEPARATOR . $file;
+            $file = $path.DIRECTORY_SEPARATOR.$file;
             if (is_dir($file)) {
                 self::clearDirectory($file);
             } else {

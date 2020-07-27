@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $header = <<<'HEADER'
-This file is part of the Omed project.
+This file is part of the Behat\LaravelExtension project.
 
 (c) Anthonius Munthi <https://itstoni.com>
 
@@ -13,7 +13,9 @@ HEADER;
 
 $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__)
-    ->exclude(__DIR__.'/vendor');
+    ->exclude('vendor')
+    ->exclude('fixtures')
+;
 
 return PhpCsFixer\Config::create()
     ->setRiskyAllowed(true)

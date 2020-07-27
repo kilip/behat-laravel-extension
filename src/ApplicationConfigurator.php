@@ -1,8 +1,18 @@
 <?php
 
+/*
+ * This file is part of the Behat\LaravelExtension project.
+ *
+ * (c) Anthonius Munthi <https://itstoni.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
 namespace Behat\LaravelExtension;
 
-use Composer\Autoload\ClassLoader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -23,16 +33,15 @@ use Laravel\BrowserKitTesting\Concerns\MocksApplicationServices;
 
 class ApplicationConfigurator implements ApplicationFactoryInterface
 {
-    use InteractsWithContainer,
-        MakesHttpRequests,
-        ImpersonatesUsers,
-        InteractsWithAuthentication,
-        InteractsWithConsole,
-        InteractsWithDatabase,
-        InteractsWithExceptionHandling,
-        InteractsWithSession,
-        MocksApplicationServices;
-
+    use InteractsWithContainer;
+    use MakesHttpRequests;
+    use ImpersonatesUsers;
+    use InteractsWithAuthentication;
+    use InteractsWithConsole;
+    use InteractsWithDatabase;
+    use InteractsWithExceptionHandling;
+    use InteractsWithSession;
+    use MocksApplicationServices;
 
     /**
      * The Illuminate application instance.
@@ -71,7 +80,6 @@ class ApplicationConfigurator implements ApplicationFactoryInterface
      */
     public function createApplication()
     {
-
         $app = include getcwd().'/bootstrap/app.php';
 
         return $app;
@@ -79,14 +87,14 @@ class ApplicationConfigurator implements ApplicationFactoryInterface
 
     public function boot()
     {
-        if (! $this->app) {
+        if (!\is_object($this->app)) {
             $this->refreshApplication();
         }
 
         $this->setUpTraits();
 
         foreach ($this->afterApplicationCreatedCallbacks as $callback) {
-            call_user_func($callback);
+            \call_user_func($callback);
         }
 
         Facade::clearResolvedInstances();
@@ -96,12 +104,12 @@ class ApplicationConfigurator implements ApplicationFactoryInterface
         $this->setUpHasRun = true;
     }
 
-
     public function __invoke()
     {
-        if(is_null($this->app)){
+        if (null === $this->app) {
             $this->app = $this->createApplication();
         }
+
         return $this->app;
     }
 
@@ -160,9 +168,9 @@ class ApplicationConfigurator implements ApplicationFactoryInterface
      */
     protected function tearDown(): void
     {
-        if ($this->app) {
+        if (\is_object($this->app)) {
             foreach ($this->beforeApplicationDestroyedCallbacks as $callback) {
-                call_user_func($callback);
+                \call_user_func($callback);
             }
 
             $this->app->flush();
@@ -191,7 +199,8 @@ class ApplicationConfigurator implements ApplicationFactoryInterface
     /**
      * Register a callback to be run after the application is created.
      *
-     * @param  callable  $callback
+     * @param callable $callback
+     *
      * @return void
      */
     public function afterApplicationCreated(callable $callback)
@@ -199,14 +208,15 @@ class ApplicationConfigurator implements ApplicationFactoryInterface
         $this->afterApplicationCreatedCallbacks[] = $callback;
 
         if ($this->setUpHasRun) {
-            call_user_func($callback);
+            \call_user_func($callback);
         }
     }
 
     /**
      * Register a callback to be run before the application is destroyed.
      *
-     * @param  callable  $callback
+     * @param callable $callback
+     *
      * @return void
      */
     protected function beforeApplicationDestroyed(callable $callback)
