@@ -204,7 +204,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: phpspec-logs-php${{ matrix.php }}
-          path: build/logs/phpspec
+          path: build
         continue-on-error: true
       #- name: Upload coverage results to Codecov
       #  if: matrix.coverage
@@ -293,7 +293,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: behat-logs-php${{ matrix.php }}
-          path: build/logs/behat
+          path: build
         continue-on-error: true
       #- name: Upload coverage results to Codecov
       #  if: matrix.coverage
