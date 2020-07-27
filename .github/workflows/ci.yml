@@ -203,7 +203,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v1
         with:
-          name: phpspec-logs-php${{ matrix.php }}
+          name: phpspec-logs-php${{ matrix.php }}-${{matrix.dependency-version}}
           path: build
         continue-on-error: true
       #- name: Upload coverage results to Codecov
@@ -277,6 +277,7 @@ jobs:
           mkdir -p /tmp/kilip/behat-laravel-extension/vendor
           ln -s /tmp/kilip/behat-laravel-extension/vendor vendor
           composer update --no-progress --no-suggest --ansi --prefer-dist --no-interaction --${{ matrix.dependency-version }}
+          composer update orchestra/testbench --prefer-stable
       - name: Enable code coverage
         if: matrix.coverage
         run: echo '::set-env name=COVERAGE::1'
@@ -292,7 +293,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v1
         with:
-          name: behat-logs-php${{ matrix.php }}
+          name: behat-logs-php${{ matrix.php }}-${{matrix.dependency-version}}
           path: build
         continue-on-error: true
       #- name: Upload coverage results to Codecov
