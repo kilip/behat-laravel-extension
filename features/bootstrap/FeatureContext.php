@@ -142,7 +142,7 @@ putenv(\'APP_KEY=base64:T32sZ8ICNANjV8CDAdXgtOmEu5iP5haOjpwHWL8dCRA=\');
      */
     public function aFileNamedWith($filename, PyStringNode $content)
     {
-        $content = (string)$content;
+        $content = (string) $content;
         $content = strtr($content, ["'''" => '"""']);
         $this->createFile($this->workingDir.'/'.$filename, $content);
     }
@@ -393,7 +393,7 @@ EOL;
 
     private function getExpectedOutput(PyStringNode $expectedText)
     {
-        $expectedText = (string)$expectedText;
+        $expectedText = (string) $expectedText;
         $text = strtr($expectedText, [
             '\'\'\'' => '"""',
             '%%TMP_DIR%%' => sys_get_temp_dir().DIRECTORY_SEPARATOR,
