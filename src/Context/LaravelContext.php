@@ -1,35 +1,33 @@
 <?php
 
+/*
+ * This file is part of the Behat\LaravelExtension project.
+ *
+ * (c) Anthonius Munthi <https://itstoni.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace Behat\LaravelExtension\Context;
 
-
 use Behat\LaravelExtension\Contracts\ApplicationAwareContract;
 use Illuminate\Foundation\Application;
-use Laravel\BrowserKitTesting\Concerns\ImpersonatesUsers;
-use Laravel\BrowserKitTesting\Concerns\InteractsWithAuthentication;
-use Laravel\BrowserKitTesting\Concerns\InteractsWithContainer;
 
 class LaravelContext implements ApplicationAwareContract
 {
-    use ImpersonatesUsers,
-        InteractsWithAuthentication,
-        InteractsWithContainer;
+    /**
+     * @var Application
+     */
+    private $app;
 
-    protected $app;
-
+    /**
+     * {@inheritdoc}
+     */
     public function setApplication($application)
     {
         $this->app = $application;
-    }
-
-    /**
-     * @Given I am logged in as :username
-     *
-     * @param $username
-     */
-    public function loggedInAs($username)
-    {
-
     }
 }

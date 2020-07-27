@@ -68,6 +68,7 @@
         "phpspec/phpspec": "^6.2",
         "phpstan/extension-installer": "^1.0",
         "phpstan/phpstan": "^0.12.30",
+        "phpstan/phpstan-symfony": "^0.12.7",
         "phpunit/phpunit": "^8.5"
     }
 }

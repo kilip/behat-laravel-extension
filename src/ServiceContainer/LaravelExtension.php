@@ -13,11 +13,9 @@ declare(strict_types=1);
 
 namespace Behat\LaravelExtension\ServiceContainer;
 
-use Behat\LaravelExtension\ApplicationConfigurator;
 use Behat\LaravelExtension\Contracts\LaravelFactoryContract;
 use Behat\LaravelExtension\Factory\LaravelAppTypeFactory;
 use Behat\LaravelExtension\Factory\LaravelPackageTypeFactory;
-use Behat\LaravelExtension\PackageConfigurator;
 use Behat\LaravelExtension\ServiceContainer\Driver\LaravelFactory;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
@@ -113,8 +111,8 @@ class LaravelExtension implements ExtensionInterface
         $package->addMethodCall('boot');
         $container->setDefinition('laravel.factory.package', $package);
 
-        $app = new Definition(LaravelAppTypeFactory::class,[
-            '%laravel.config.bootstrap_file%'
+        $app = new Definition(LaravelAppTypeFactory::class, [
+            '%laravel.config.bootstrap_file%',
         ]);
         $package->addMethodCall('boot');
         $container->setDefinition('laravel.factory.application', $app);

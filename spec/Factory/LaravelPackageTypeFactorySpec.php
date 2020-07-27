@@ -1,30 +1,39 @@
 <?php
 
+/*
+ * This file is part of the Behat\LaravelExtension project.
+ *
+ * (c) Anthonius Munthi <https://itstoni.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
 namespace spec\Behat\LaravelExtension\Factory;
 
 use Behat\LaravelExtension\Factory\LaravelPackageTypeFactory;
 use Illuminate\Config\Repository;
-use Illuminate\Foundation\Application;
 use PhpSpec\ObjectBehavior;
 use Tests\DummyPackage\DummyService;
 use Tests\DummyPackage\DummyServiceProvider;
-use Webmozart\Assert\Assert;
 
 class LaravelPackageTypeFactorySpec extends ObjectBehavior
 {
     private $providers = [
-        DummyServiceProvider::class
+        DummyServiceProvider::class,
     ];
 
     private $aliases = [
-        'Dummy' => DummyService::class
+        'Dummy' => DummyService::class,
     ];
 
     private $environment = [
-        'key' => 'value'
+        'key' => 'value',
     ];
 
-    function let()
+    public function let()
     {
         $this->beConstructedWith(
             $this->providers,
@@ -33,17 +42,17 @@ class LaravelPackageTypeFactorySpec extends ObjectBehavior
         );
     }
 
-    function it_is_initializable()
+    public function it_is_initializable()
     {
         $this->shouldHaveType(LaravelPackageTypeFactory::class);
     }
 
-    function it_should_be_a_laravel_factory()
+    public function it_should_be_a_laravel_factory()
     {
         $this->shouldImplement(LaravelPackageTypeFactory::class);
     }
 
-    function it_should_create_application()
+    public function it_should_create_application()
     {
         $this->boot();
         $app = $this();
