@@ -31,6 +31,12 @@ Feature: Developer enables laravel extension
               - Tests\DummyPackage\DummyServiceProvider
             aliases:
               SomeAliases: Some\Aliases
+            environment:
+              foo:
+                - "Array Value 1"
+                - "Array Value 2"
+              hello_world:
+                hello: world
       """
     When I run "behat -f progress --no-colors --config-reference"
     Then it should pass

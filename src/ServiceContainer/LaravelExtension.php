@@ -33,7 +33,6 @@ class LaravelExtension implements ExtensionInterface
 
     public function process(ContainerBuilder $container)
     {
-        return;
     }
 
     public function getConfigKey()
@@ -72,13 +71,21 @@ class LaravelExtension implements ExtensionInterface
                 ->arrayNode('environment')
                     ->info('setup your configuration')
                     ->useAttributeAsKey('name')
-                    ->prototype('scalar')->end()
+                    ->prototype('scalar')
+                        ->beforeNormalization()
+                            ->ifArray()
+                            ->then(function($v){
+                                return 'serialized:'.serialize($v);
+                            })
+                        ->end()
+                    ->end()
                 ->end()
             ->end();
     }
 
     public function load(ContainerBuilder $container, array $config)
     {
+        $config = $this->normalizeConfig($config);
         $container->setParameter('laravel.config.bootstrap_file', $config['bootstrap_file']);
         $container->setParameter('laravel.config.providers', $config['providers']);
         $container->setParameter('laravel.config.aliases', $config['aliases']);
@@ -129,5 +136,24 @@ class LaravelExtension implements ExtensionInterface
         $definition->addTag(ContextExtension::INITIALIZER_TAG, ['priority' => 0]);
         $definition->addTag(EventDispatcherExtension::SUBSCRIBER_TAG, ['priority' => 0]);
         $container->setDefinition('laravel.context.app_initializer', $definition);
+    }
+
+    /**
+     * @TODO: perform tests for this functionality
+     * @param array $config
+     * @return array
+     */
+    private function normalizeConfig(array $config)
+    {
+        $environment = $config['environment'];
+        $prefix = 'serialized:';
+        foreach($environment as $key => $value){
+            if(substr($value,0,strlen($prefix)) !==  $prefix){
+                continue;
+            }
+            $value = str_replace($prefix,'', $value);
+            $config['environment'][$key] = unserialize($value);
+        }
+        return $config;
     }
 }

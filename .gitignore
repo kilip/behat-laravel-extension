@@ -1,3 +1,4 @@
+build
 fixtures/laravel
 !fixtures/laravel/.gitkeep
 vendor
