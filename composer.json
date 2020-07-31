@@ -34,8 +34,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\DummyPackage\\": "./fixtures/test-package",
-            "App\\": "./fixtures/laravel"
+            "Tests\\DummyPackage\\": "./fixtures/test-package"
         }
     },
     "scripts": {
@@ -43,10 +42,10 @@
         "phpstan": "./vendor/bin/phpstan analyse --ansi",
         "phpspec": "./vendor/bin/phpspec --ansi run -fpretty",
         "phpcs": "./vendor/bin/php-cs-fixer fix --ansi",
-        "coverage": "@phpunit --coverage-html=build/coverage",
+        "coverage": "@phpspec",
         "verify": [
+            "@phpspec",
             "@phpcs --dry-run --diff",
-            "@phpunit",
             "@phpstan"
         ]
     },
@@ -57,14 +56,19 @@
         "php": ">=7.2",
         "friends-of-behat/mink-browserkit-driver": "^1.3|^1.4",
         "friends-of-behat/mink-extension": "^2.4",
-        "illuminate/support": "^5.8|^6.0|^7.0"
+        "illuminate/contracts": "^5.8|^6.0|^7.0",
+        "illuminate/database": "^5.8|^6.0|^7.0",
+        "illuminate/http": "^5.8|^6.0|^7.0",
+        "illuminate/support": "^5.8|^6.0|^7.0",
+        "illuminate/testing": "^5.8|^6.0|^7.0"
     },
     "require-dev": {
         "fideloper/proxy": "^4.4",
+        "friends-of-phpspec/phpspec-code-coverage": "^4.3",
         "friendsofphp/php-cs-fixer": "^2.16",
         "laravel/framework": "^5.8|^6.0|^7.0",
-        "laravel/tinker": "^1.0.10|^2.4",
-        "orchestra/testbench": "^3.9.4|^4.8|^5.3",
+        "laravel/laravel": "^5.8|^6.0|^7.0",
+        "laravel/lumen-framework": "^5.8|^6.0|^7.0",
         "phpspec/phpspec": "^6.2",
         "phpstan/extension-installer": "^1.0",
         "phpstan/phpstan": "^0.12.30",

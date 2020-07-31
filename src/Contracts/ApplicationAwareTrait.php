@@ -11,15 +11,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\DummyPackage;
+namespace Behat\LaravelExtension\Contracts;
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\ServiceProvider;
-
-class DummyServiceProvider extends ServiceProvider
+trait ApplicationAwareTrait
 {
-    public function boot()
+    protected $app;
+
+    public function setApplication($application)
     {
-        Route::get('/', DummyAction::class);
+        $this->app = $application;
     }
 }

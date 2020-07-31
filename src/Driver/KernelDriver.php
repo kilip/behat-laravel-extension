@@ -13,23 +13,26 @@ declare(strict_types=1);
 
 namespace Behat\LaravelExtension\Driver;
 
+use Behat\LaravelExtension\Contracts\LaravelFactoryContract;
 use Behat\Mink\Driver\BrowserKitDriver;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class KernelDriver extends BrowserKitDriver
 {
     /**
      * KernelDriver constructor.
      *
-     * @param HttpKernelInterface $app
-     * @param string|null         $baseUrl
+     * @param LaravelFactoryContract $factory
+     * @param string|null            $baseUrl
      */
-    public function __construct(HttpKernelInterface $app, $baseUrl = null)
+    public function __construct(LaravelFactoryContract $factory, $baseUrl = null)
     {
         $class = 'Symfony\\Component\\HttpKernel\\Client';
         if (class_exists($test = 'Symfony\\Component\\HttpKernel\\HttpKernelBrowser')) {
             $class = $test;
         }
+
+        $app = $factory->getApplication();
+
         parent::__construct(new $class($app), $baseUrl);
     }
 }

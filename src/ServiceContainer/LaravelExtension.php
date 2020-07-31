@@ -15,13 +15,12 @@ namespace Behat\LaravelExtension\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
 use Behat\LaravelExtension\Contracts\LaravelFactoryContract;
-use Behat\LaravelExtension\Factory\LaravelAppTypeFactory;
-use Behat\LaravelExtension\Factory\LaravelPackageTypeFactory;
-use Behat\LaravelExtension\ServiceContainer\Driver\LaravelFactory;
+use Behat\LaravelExtension\Factory\LaravelFactory;
+use Behat\LaravelExtension\ServiceContainer\Driver\DriverFactory;
 use Behat\Testwork\EventDispatcher\ServiceContainer\EventDispatcherExtension;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
-use Illuminate\Foundation\Application;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -29,8 +28,6 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class LaravelExtension implements ExtensionInterface
 {
-    public const KERNEL_SERVICE_ID = 'laravel.app';
-
     public function process(ContainerBuilder $container)
     {
     }
@@ -43,7 +40,7 @@ class LaravelExtension implements ExtensionInterface
     public function initialize(ExtensionManager $extensionManager)
     {
         if (null !== $minkExtension = $extensionManager->getExtension('mink')) {
-            $minkExtension->registerDriverFactory(new LaravelFactory());
+            $minkExtension->registerDriverFactory(new DriverFactory());
         }
     }
 
@@ -53,11 +50,7 @@ class LaravelExtension implements ExtensionInterface
             ->addDefaultsIfNotSet()
             ->children()
                 ->scalarNode('bootstrap_file')
-                    ->defaultValue('bootstrap/app.php')
-                ->end()
-                ->enumNode('type')
-                    ->values(['application', 'package'])
-                    ->defaultValue('application')
+                    ->defaultValue($this->detectDefaultBootstrapFile())
                 ->end()
                 ->arrayNode('providers')
                     ->info('list your package providers')
@@ -74,7 +67,7 @@ class LaravelExtension implements ExtensionInterface
                     ->prototype('scalar')
                         ->beforeNormalization()
                             ->ifArray()
-                            ->then(function($v){
+                            ->then(function ($v) {
                                 return 'serialized:'.serialize($v);
                             })
                         ->end()
@@ -91,46 +84,29 @@ class LaravelExtension implements ExtensionInterface
         $container->setParameter('laravel.config.aliases', $config['aliases']);
         $container->setParameter('laravel.config.environment', $config['environment']);
 
-        $this->loadFactories($container, $config);
-        $this->loadApplicationFactory($container, $config);
-        $this->loadContextInitializer($container, $config);
+        $this->loadFactories($container);
+        $this->loadContextInitializer($container);
     }
 
-    private function loadApplicationFactory(ContainerBuilder $container, array $config)
+    private function loadFactories(ContainerBuilder $container)
     {
-        $configuratorId = 'laravel.factory.application';
-        if ('package' === $config['type']) {
-            $configuratorId = 'laravel.factory.package';
-        }
-        $container->setAlias('laravel.factory', $configuratorId);
-        $container->setAlias(LaravelFactoryContract::class, $configuratorId);
-
-        $definition = new Definition(Application::class);
-        $definition->setFactory([new Reference('laravel.factory'), 'getApplication']);
-        $container->setDefinition('laravel.app', $definition);
-    }
-
-    private function loadFactories(ContainerBuilder $container, array $config)
-    {
-        $package = new Definition(LaravelPackageTypeFactory::class, [
+        $appFactory = new Definition(LaravelFactory::class, [
+            '%laravel.config.bootstrap_file%',
             '%laravel.config.providers%',
             '%laravel.config.aliases%',
             '%laravel.config.environment%',
         ]);
-        $package->addMethodCall('boot');
-        $container->setDefinition('laravel.factory.package', $package);
+        $container->setDefinition('laravel.factory.app', $appFactory);
+        $container->setAlias(LaravelFactoryContract::class, 'laravel.factory.app');
 
-        $app = new Definition(LaravelAppTypeFactory::class, [
-            '%laravel.config.bootstrap_file%',
-        ]);
-        $package->addMethodCall('boot');
-        $container->setDefinition('laravel.factory.application', $app);
+        $driverFactory = new Definition(DriverFactory::class, [new Reference(ContainerInterface::class)]);
+        $container->setDefinition('laravel.factory.driver', $driverFactory);
     }
 
-    private function loadContextInitializer(ContainerBuilder $container, array $config)
+    private function loadContextInitializer(ContainerBuilder $container)
     {
-        $definition = new Definition('Behat\LaravelExtension\Context\Initializer\ApplicationAwareInitializer', [
-            new Reference('laravel.factory'),
+        $definition = new Definition('Behat\LaravelExtension\Listener\ApplicationAwareInitializer', [
+            new Reference('laravel.factory.app'),
         ]);
 
         $definition->addTag(ContextExtension::INITIALIZER_TAG, ['priority' => 0]);
@@ -140,20 +116,37 @@ class LaravelExtension implements ExtensionInterface
 
     /**
      * @TODO: perform tests for this functionality
+     *
      * @param array $config
+     *
      * @return array
      */
     private function normalizeConfig(array $config)
     {
         $environment = $config['environment'];
         $prefix = 'serialized:';
-        foreach($environment as $key => $value){
-            if(substr($value,0,strlen($prefix)) !==  $prefix){
+        foreach ($environment as $key => $value) {
+            if (substr($value, 0, \strlen($prefix)) !== $prefix) {
                 continue;
             }
-            $value = str_replace($prefix,'', $value);
+            $value = str_replace($prefix, '', $value);
             $config['environment'][$key] = unserialize($value);
         }
+
         return $config;
+    }
+
+    private function detectDefaultBootstrapFile()
+    {
+        $bootstrapFile = 'bootstrap/app.php';
+        if (!is_file($bootstrapFile)) {
+            $bootstrapFile = __DIR__.'/../../../../../bootstrap/app.php';
+        }
+
+        if (!is_file($bootstrapFile)) {
+            $bootstrapFile = __DIR__.'/../../vendor/laravel/laravel/bootstrap/app.php';
+        }
+
+        return realpath($bootstrapFile);
     }
 }

@@ -13,7 +13,8 @@ declare(strict_types=1);
 
 namespace Behat\LaravelExtension\Contracts;
 
-use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Foundation\Application;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 interface LaravelFactoryContract
 {
@@ -37,7 +38,7 @@ interface LaravelFactoryContract
     public function reboot();
 
     /**
-     * @return Application
+     * @return Application|KernelInterface
      */
     public function getApplication();
 }

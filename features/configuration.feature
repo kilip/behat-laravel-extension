@@ -4,7 +4,8 @@ Feature: Developer enables laravel extension
   In order to test laravel application or package
 
   Background:
-    Given a file named "features/bootstrap/FeatureContext.php" with:
+    Given I am in laravel project directory
+    And a file named "features/bootstrap/FeatureContext.php" with:
       """
       <?php
 
@@ -26,7 +27,6 @@ Feature: Developer enables laravel extension
       default:
         extensions:
           Behat\LaravelExtension:
-            type: package
             providers:
               - Tests\DummyPackage\DummyServiceProvider
             aliases:

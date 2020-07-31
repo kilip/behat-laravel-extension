@@ -13,15 +13,12 @@ declare(strict_types=1);
 
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
-use Illuminate\Foundation\Application;
 use PHPUnit\Framework\Assert;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
 /**
  * Behat test suite context.
- *
- * @author Konstantin Kudryashov <ever.zet@gmail.com>
  */
 class FeatureContext implements Context
 {
@@ -29,22 +26,27 @@ class FeatureContext implements Context
      * @var string
      */
     private $phpBin;
+
     /**
      * @var Process
      */
     private $process;
+
     /**
      * @var string
      */
     private $workingDir;
+
     /**
      * @var string
      */
     private $options = '--format-settings=\'{"timer": false}\' --no-interaction';
+
     /**
      * @var array
      */
     private $env = [];
+
     /**
      * @var string
      */
@@ -72,9 +74,6 @@ class FeatureContext implements Context
     {
         $dir = sys_get_temp_dir().DIRECTORY_SEPARATOR.'behat'.DIRECTORY_SEPARATOR.
             md5(microtime().random_int(0, 10000));
-
-        mkdir($dir.'/features/bootstrap/i18n', 0777, true);
-        mkdir($dir.'/junit');
 
         $phpFinder = new PhpExecutableFinder();
         if (false === $php = $phpFinder->find()) {
@@ -106,46 +105,41 @@ class FeatureContext implements Context
      */
     public function iAmInLaravelProjectDir()
     {
-        $this->prepareLaravelStub();
         $fs = new \Symfony\Component\Filesystem\Filesystem();
-        $target = $this->workingDir;
-        if (!is_file($target.'/stub-version')) {
-            $fs->mirror(__DIR__.'/../../fixtures/laravel', $this->workingDir);
-        }
+        $origin = __DIR__.'/../../vendor/laravel/laravel';
+        $fs->mirror($origin, $this->workingDir);
 
-        /** @var \Composer\Autoload\ClassLoader $loader */
-        $autoloadFile = __DIR__.'/../../vendor/autoload.php';
-        if (!is_file($autoloadFile)) {
-            $autoloadFile = __DIR__.'/../../../../autoload.php';
-        }
-        $autoloadFile = realpath($autoloadFile);
-        $contents = '
-$loader = include "'.$autoloadFile.'";
-$loader->addPsr4("App\\\\",[__DIR__."/../app"]);
-';
-        file_put_contents($this->workingDir.'/bootstrap/autoload.php', "<?php\n".$contents, LOCK_EX);
-    }
+        /*
+        $contents = sprintf(<<<'CON'
 
-    public function prepareLaravelStub()
-    {
-        $version = (int) substr(Application::VERSION, 0, 1);
-        $sourceDir = __DIR__.'/../../fixtures/stub/laravel-'.$version;
-        $targetPath = $this->workingDir;
-        try {
-            $stubVersion = file_get_contents($targetPath.'/stub-version');
-        } catch (\Exception $e) {
-            $stubVersion = '';
-        }
+$loader = require '%s';
+$loader->addPsr4('App\\', __DIR__ . '/../app/');
+$loader->addPsr4('Tests\\', __DIR__ . '/../tests/');
 
-        $stubVersion = (int) trim($stubVersion);
+CON
+        , realpath(__DIR__.'/../../vendor/autoload.php'));
+        $this->createFile($this->workingDir.'/vendor/autoload.php', "<?php\n\n".$contents);
+        */
 
-        if ($version === $stubVersion) {
-            return;
-        }
+        //$target = $this->workingDir.'/bootstrap/app.php';
+        //$appContents = file_get_contents($target);
 
-        $fs = new Symfony\Component\Filesystem\Filesystem();
+        //$contents .= '$app = new Illuminate\Foundation\Application(';
+        //$contents = str_replace('$app = new Illuminate\Foundation\Application(',$contents,$appContents);
 
-        $fs->mirror($sourceDir, $targetPath);
+        //$this->createFile($target, $contents);
+
+        $contents = <<<EOC
+APP_NAME=Laravel
+APP_ENV=local
+APP_KEY=base64:DubKoZEmQ/8MjJgoDJbDQjjnvi63Eeyj4I+lH62I4KM=
+APP_DEBUG=true
+APP_URL=http://localhost
+EOC;
+
+        $this->createFile($this->workingDir.'/.env', $contents);
+
+        return;
     }
 
     /**
@@ -275,7 +269,7 @@ EOL;
         }
 
         // Prepare the process parameters.
-        $this->process->setTimeout(20);
+        //$this->process->setTimeout(20);
         $this->process->setEnv($this->env);
         $this->process->setWorkingDirectory($this->workingDir);
 

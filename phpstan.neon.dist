@@ -2,6 +2,8 @@ parameters:
 	level: 5
 	paths:
 		- src
+	excludes_analyse:
+	    - src/Bridge/Http/ExceptionHandler.php
 	inferPrivatePropertyTypeFromConstructor: true
 	earlyTerminatingMethodCalls:
 		PHPUnit\Framework\Constraint\Constraint:
@@ -9,4 +11,4 @@ parameters:
 	ignoreErrors:
 	    - '#Extension::registerDriverFactory#'
 	    - '#Symfony\\Component\\HttpKernel\\Client not found#'
-	    - '#NodeParentInterface::enumNode#'
+	    - '#NodeParentInterface::arrayNode#'

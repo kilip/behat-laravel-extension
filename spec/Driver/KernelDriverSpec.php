@@ -13,16 +13,21 @@ declare(strict_types=1);
 
 namespace spec\Behat\LaravelExtension\Driver;
 
+use Behat\LaravelExtension\Contracts\LaravelFactoryContract;
 use Behat\LaravelExtension\Driver\KernelDriver;
+use Illuminate\Foundation\Application;
 use PhpSpec\ObjectBehavior;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class KernelDriverSpec extends ObjectBehavior
 {
     public function let(
-        HttpKernelInterface $app
+        LaravelFactoryContract $factory,
+        Application $application
     ) {
-        $this->beConstructedWith($app, 'http://localhost/');
+        $factory->getApplication()
+            ->shouldBeCalled()
+            ->willReturn($application);
+        $this->beConstructedWith($factory, 'http://localhost/');
     }
 
     public function it_is_initializable()

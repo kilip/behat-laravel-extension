@@ -13,12 +13,12 @@ declare(strict_types=1);
 
 namespace Behat\LaravelExtension\Contracts;
 
-use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 
 interface ApplicationAwareContract
 {
     /**
-     * @param Application $application
+     * @param ApplicationContract $application
      *
      * @return void
      */

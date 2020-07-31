@@ -194,11 +194,7 @@ jobs:
       - name: Run PHPSpec
         run: |
           mkdir -p build/logs/phpspec
-          if [ "$COVERAGE" = '1' ]; then
-            composer phpspec
-          else
-            composer phpspec
-          fi
+          composer phpspec
       - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v1
@@ -206,14 +202,15 @@ jobs:
           name: phpspec-logs-php${{ matrix.php }}-${{matrix.dependency-version}}
           path: build
         continue-on-error: true
-      #- name: Upload coverage results to Codecov
-      #  if: matrix.coverage
-      #  uses: codecov/codecov-action@v1
-      #  with:
-      #    name: behat-php${{ matrix.php }}
-      #    flags: behat
-      #    fail_ci_if_error: true
-      #  continue-on-error: true
+      - name: Upload coverage results to Codecov
+        if: matrix.coverage
+        uses: codecov/codecov-action@v1
+        with:
+          name: phpspec-php${{ matrix.php }}
+          flags: phpspec
+          fail_ci_if_error: false
+          file: ./build/coverage/phpspec.xml
+        continue-on-error: true
 
 # behat job config
   behat:

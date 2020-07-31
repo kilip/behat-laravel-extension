@@ -13,8 +13,10 @@ HEADER;
 
 $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__)
-    ->exclude('vendor')
-    ->exclude('fixtures')
+    ->exclude([
+        'build',
+        'vendor'
+    ])
 ;
 
 return PhpCsFixer\Config::create()
