@@ -183,6 +183,9 @@ jobs:
           path: ~/.composer/cache
           key: composer-php${{ matrix.php }}-${{ matrix.dependency-version }}-${{ github.sha }}
         continue-on-error: true
+      - name: Enable code coverage
+        if: matrix.coverage
+        run: echo '::set-env name=COVERAGE::1'
       - name: Update project dependencies
         run: |
           mkdir -p /tmp/kilip/behat-laravel-extension/vendor
@@ -191,9 +194,6 @@ jobs:
           if [ "$COVERAGE" != '1' ]; then
             composer remove --dev friends-of-phpspec/phpspec-code-coverage
           fi
-      - name: Enable code coverage
-        if: matrix.coverage
-        run: echo '::set-env name=COVERAGE::1'
       - name: Run PHPSpec
         run: |
           mkdir -p build/logs/phpspec
