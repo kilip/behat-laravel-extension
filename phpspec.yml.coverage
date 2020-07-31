@@ -1,0 +1,13 @@
+suites:
+    laravel_extension:
+        namespace: Behat\LaravelExtension
+        psr4_prefix: Behat\LaravelExtension
+
+extensions:
+    FriendsOfPhpSpec\PhpSpec\CodeCoverage\CodeCoverageExtension:
+        format:
+            - clover
+            - html
+        output:
+            html: build/logs/phpspec/html
+            clover: build/logs/phpspec/clover.xml

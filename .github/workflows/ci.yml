@@ -197,7 +197,11 @@ jobs:
       - name: Run PHPSpec
         run: |
           mkdir -p build/logs/phpspec
-          composer phpspec
+          if [ "$COVERAGE" = '1' ]; then
+            composer phpspec-coverage
+          else
+            composer phpspec
+          fi
       - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v1
@@ -212,7 +216,7 @@ jobs:
           name: phpspec-php${{ matrix.php }}
           flags: phpspec
           fail_ci_if_error: false
-          file: ./build/coverage/phpspec.xml
+          file: ./build/logs/phpspec/clover.xml
         continue-on-error: true
 
 # behat job config

@@ -42,7 +42,7 @@
         "phpstan": "./vendor/bin/phpstan analyse --ansi",
         "phpspec": "./vendor/bin/phpspec --ansi run -fpretty",
         "phpcs": "./vendor/bin/php-cs-fixer fix --ansi",
-        "coverage": "@phpspec",
+        "phpspec-coverage": "@phpspec --config=phpspec.yml.coverage",
         "verify": [
             "@phpspec",
             "@phpcs --dry-run --diff",
